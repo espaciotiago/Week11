@@ -3,9 +3,7 @@ package tech.yeswecode.week11.services
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import tech.yeswecode.week11.models.ChatMessage
-import tech.yeswecode.week11.utils.CHATS_COLLECTION
-import tech.yeswecode.week11.utils.MESSAGES_COLLECTION
-import tech.yeswecode.week11.utils.USERS_COLLECTION
+import tech.yeswecode.week11.utils.*
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap

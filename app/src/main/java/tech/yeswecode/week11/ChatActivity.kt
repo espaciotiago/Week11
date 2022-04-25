@@ -7,6 +7,7 @@ import tech.yeswecode.week11.adapters.ChatAdapter
 import tech.yeswecode.week11.databinding.ActivityChatBinding
 import tech.yeswecode.week11.models.User
 import tech.yeswecode.week11.services.ChatFirebaseProtocol
+import tech.yeswecode.week11.services.ChatMockProvider
 import tech.yeswecode.week11.utils.*
 import tech.yeswecode.week11.viewModels.ChatViewModel
 
@@ -25,6 +26,9 @@ class ChatActivity : AppCompatActivity() {
         val sender = intent.getSerializableExtra(USER_EXTRA) as User
         val receiver = intent.getSerializableExtra(RECEIVER_EXTRA) as User
         vm = ChatViewModel(ChatFirebaseProtocol(), sender, receiver)
+
+        // Use this for mock and testing
+        //vm = ChatViewModel(ChatMockProvider(sender, receiver), sender, receiver)
 
         linearLayoutManager = LinearLayoutManager(this)
         adapter = ChatAdapter(vm.messages, vm.sender, vm.receiver)
