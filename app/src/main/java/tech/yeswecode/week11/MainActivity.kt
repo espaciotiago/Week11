@@ -20,6 +20,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.usernameTxt.setText("espaciotiago")
+        binding.passwordTxt.setText("123")
         binding.loginBtn.setOnClickListener {
             val username = binding.usernameTxt.text.toString()
             val password = binding.passwordTxt.text.toString()

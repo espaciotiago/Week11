@@ -1,17 +1,23 @@
 package tech.yeswecode.week11
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
+import tech.yeswecode.week11.adapters.OnUserSelected
+import tech.yeswecode.week11.adapters.UsersAdapter
 import tech.yeswecode.week11.databinding.ActivityHomeBinding
-import tech.yeswecode.week11.databinding.ActivityMainBinding
 import tech.yeswecode.week11.models.User
-import tech.yeswecode.week11.utils.USERS_COLLECTION
+import tech.yeswecode.week11.utils.*
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), OnUserSelected {
 
     private lateinit var binding: ActivityHomeBinding
+    private lateinit var linearLayoutManager: LinearLayoutManager
+    private lateinit var adapter: UsersAdapter
+
+    private lateinit var currentUser: User
     private var db = FirebaseFirestore.getInstance()
     private var users = ArrayList<User>()
 
@@ -19,30 +25,34 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        getUsersSnapshot()
+
+        linearLayoutManager = LinearLayoutManager(this)
+        adapter = UsersAdapter(users, this)
+        binding.usersRecyclerview.adapter = adapter
+        binding.usersRecyclerview.layoutManager = linearLayoutManager
+
+        currentUser = intent.getSerializableExtra(USER_EXTRA) as User
+        getUsers()
     }
 
     private fun getUsers() {
         db.collection(USERS_COLLECTION).get().addOnCompleteListener {
             for(document in it.result!!) {
                 val user = document.toObject(User::class.java)
-                users.add(user)
+                if(user.id != currentUser.id) {
+                    users.add(user)
+                }
             }
-            Log.e(">>>", ""+users)
+            adapter.notifyDataSetChanged()
         }
     }
 
-    private fun getUsersSnapshot() {
-        db.collection(USERS_COLLECTION).addSnapshotListener { value, e ->
-            if (e != null) {
-                Log.w("HomeActivity", "Listen failed.", e)
-                return@addSnapshotListener
-            }
-            for (document in value!!) {
-                val user = document.toObject(User::class.java)
-                users.add(user)
-            }
-            Log.e(">>>", ""+users)
+    override fun onUserSelected(selected: User) {
+        val intent = Intent(this, ChatActivity::class.java)
+        intent.apply {
+            putExtra(USER_EXTRA, currentUser)
+            putExtra(RECEIVER_EXTRA, selected)
         }
+        startActivity(intent)
     }
 }

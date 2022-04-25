@@ -10,6 +10,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Week11">
         <activity
+            android:name=".ChatActivity"
+            android:exported="true"
+            android:label="@string/title_activity_chat"
+            android:theme="@style/Theme.Week11.NoActionBar" />
+        <activity
             android:name=".HomeActivity"
             android:exported="true" />
         <activity
