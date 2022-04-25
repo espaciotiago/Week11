@@ -10,8 +10,9 @@ import tech.yeswecode.week11.services.ChatFirebaseProtocol
 import tech.yeswecode.week11.services.ChatMockProvider
 import tech.yeswecode.week11.utils.*
 import tech.yeswecode.week11.viewModels.ChatViewModel
+import tech.yeswecode.week11.viewModels.OnChatResponse
 
-class ChatActivity : AppCompatActivity() {
+class ChatActivity : AppCompatActivity(), OnChatResponse {
 
     private lateinit var binding: ActivityChatBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -25,10 +26,10 @@ class ChatActivity : AppCompatActivity() {
 
         val sender = intent.getSerializableExtra(USER_EXTRA) as User
         val receiver = intent.getSerializableExtra(RECEIVER_EXTRA) as User
-        vm = ChatViewModel(ChatFirebaseProtocol(), sender, receiver)
+        vm = ChatViewModel(this, ChatFirebaseProtocol(), sender, receiver)
 
         // Use this for mock and testing
-        //vm = ChatViewModel(ChatMockProvider(sender, receiver), sender, receiver)
+        //vm = ChatViewModel(this, ChatMockProvider(sender, receiver), sender, receiver)
 
         linearLayoutManager = LinearLayoutManager(this)
         adapter = ChatAdapter(vm.messages, vm.sender, vm.receiver)
@@ -38,22 +39,25 @@ class ChatActivity : AppCompatActivity() {
         binding.sendBtn.setOnClickListener {
             sendMessage()
         }
-
         getChat()
     }
 
     private fun getChat() {
-        vm.getChat {
-            //TODO: Positionate scroll on the last message
-            adapter.notifyDataSetChanged()
-        }
+        vm.getChat()
     }
 
     private fun sendMessage() {
         val message = binding.messageTextView.text.toString()
-        vm.sendMessage(message) {
-            //TODO: Close the keyboard and positionate scroll on the last message
-            binding.messageTextView.setText("")
-        }
+        vm.sendMessage(message)
+    }
+
+    override fun onMessagesReceived() {
+        //TODO: Positionate scroll on the last message
+        adapter.notifyDataSetChanged()
+    }
+
+    override fun onNewMessageSended() {
+        //TODO: Close the keyboard and positionate scroll on the last message
+        binding.messageTextView.setText("")
     }
 }

@@ -6,28 +6,31 @@ import tech.yeswecode.week11.services.ChatProviderProtocol
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ChatViewModel(private var provider: ChatProviderProtocol,
+class ChatViewModel(private var delegate: OnChatResponse,
+                    private var provider: ChatProviderProtocol,
                     val sender: User,
                     val receiver: User) {
 
     private var chatReference: String = ""
     var messages = ArrayList<ChatMessage>()
 
-    fun getChat(completion: (messages: ArrayList<ChatMessage>)->Unit) {
+    fun getChat() {
         provider.getChat(sender.id, receiver.id) {
             if(it != null) {
                 chatReference = it
-                getMessages(completion)
+                getMessages()
             } else {
-                getChatSeconday(completion)
+                getChatSecondary()
             }
         }
     }
 
-    fun sendMessage(message: String, completion: ()->Unit) {
+    fun sendMessage(message: String) {
         if(message.isNotEmpty()) {
             val chatMessage = ChatMessage(UUID.randomUUID().toString(), message, sender.id, receiver.id, Date())
-            provider.createNewMessage(chatReference, chatMessage, completion)
+            provider.createNewMessage(chatReference, chatMessage) {
+                delegate.onNewMessageSended()
+            }
         }
     }
 
@@ -37,18 +40,18 @@ class ChatViewModel(private var provider: ChatProviderProtocol,
         }
     }
 
-    private fun getChatSeconday(completion: (messages: ArrayList<ChatMessage>)->Unit) {
+    private fun getChatSecondary() {
         provider.getChat(receiver.id, sender.id) {
             if(it != null) {
                 chatReference = it
-                getMessages(completion)
+                getMessages()
             } else {
                 createNewChat()
             }
         }
     }
 
-    private fun getMessages(completion: (messages: ArrayList<ChatMessage>)->Unit) {
+    private fun getMessages() {
         provider.getMessages(chatReference) { listOfMessages ->
             for(message in listOfMessages) {
                 val filter = messages.firstOrNull { it.id == message.id }
@@ -56,7 +59,7 @@ class ChatViewModel(private var provider: ChatProviderProtocol,
                     messages.add(message)
                 }
             }
-            completion(messages)
+            delegate.onMessagesReceived()
         }
     }
 }
